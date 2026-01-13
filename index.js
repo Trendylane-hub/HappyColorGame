@@ -1,69 +1,71 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
-
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyCDNfAL0vzSorHkrOuOA7KomWnpZwgMsxc",
-  authDomain: "happy-color-game.firebaseapp.com",
-  projectId: "happy-color-game",
-  storageBucket: "happy-color-game.appspot.com",
-  messagingSenderId: "97392816870",
-  appId: "1:97392816870:web:cf10c9b34900f19cfb8127"
+// Simple user "database" with hashed passwords
+const users = {
+  "admin": {
+    hash: "ef92b778bafe771e89245b89ecbcfabc5c414d3aa22e46d6748b1370a25b1f78", // hash of 'admin123'
+    role: "admin"
+  },
+  "bob": {
+    hash: "a8b64babdffb15e79b062db50eebca4f8ffde44de23a95d833f1d11ecdfdf6e3", // hash of 'test123'
+    role: "user"
+  }
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// Convert username → Firebase email
-const usernameToEmail = (username) => {
-  if(username.toLowerCase() === "admin") return "admin@happycolorgame.local";
-  return `${username}@happycolorgame.local`;
-};
+// Helper: hash password using SHA-256
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
 
 // Login function
-window.login = () => {
-  const username = document.getElementById("email").value;
+async function login() {
+  const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
-  const email = usernameToEmail(username);
 
-  signInWithEmailAndPassword(auth, email, password)
-    .then(userCredential => {
-      if(username.toLowerCase() === "admin") {
-        // Show admin panel
-        document.getElementById("login").style.display = "none";
-        document.getElementById("adminPanel").style.display = "block";
-      } else {
-        // Normal user
-        document.getElementById("login").style.display = "none";
-        document.getElementById("userPanel").style.display = "block";
-        document.getElementById("userEmail").textContent = username;
-      }
-    })
-    .catch(err => alert(err.message));
+  if(!users[username]) return alert("Username not found");
+
+  const passwordHash = await hashPassword(password);
+  if(passwordHash !== users[username].hash) return alert("Incorrect password");
+
+  if(users[username].role === "admin") {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+  } else {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("userPanel").style.display = "block";
+    document.getElementById("userDisplay").textContent = username;
+  }
 }
 
 // Logout
-window.logout = () => {
-  signOut(auth).then(() => {
-    document.getElementById("login").style.display = "block";
-    document.getElementById("adminPanel").style.display = "none";
-    document.getElementById("userPanel").style.display = "none";
-  });
+function logout() {
+  document.getElementById("login").style.display = "block";
+  document.getElementById("adminPanel").style.display = "none";
+  document.getElementById("userPanel").style.display = "none";
 }
 
-// Admin: Create user
-window.createUser = () => {
-  const username = document.getElementById("newUserEmail").value;
-  const password = document.getElementById("newUserPassword").value;
-  const email = usernameToEmail(username);
+// Admin: Create new user
+async function createUser() {
+  const username = document.getElementById("newUsername").value;
+  const password = document.getElementById("newPassword").value;
 
-  createUserWithEmailAndPassword(auth, email, password)
-    .then(() => alert("User created!"))
-    .catch(err => alert(err.message));
+  if(users[username]) return alert("User already exists");
+
+  const passwordHash = await hashPassword(password);
+  users[username] = { hash: passwordHash, role: "user" };
+  alert("User created!");
 }
 
-// Admin: Delete user (requires Cloud Functions)
-window.deleteUser = () => {
-  alert("Delete user requires Cloud Functions.");
-}
+// Admin: Delete user
+function deleteUser() {
+  const username = document.getElementById("deleteUsername").value;
 
+  if(!users[username]) return alert("User not found");
+  if(username === "admin") return alert("Cannot delete admin!");
+
+  delete users[username];
+  alert("User deleted!");
+}
