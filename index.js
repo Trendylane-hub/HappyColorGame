@@ -1,26 +1,31 @@
-// Simple user "database" with hashed passwords
+// ----------------------------
+// USERS DATABASE (hashed passwords)
+// ----------------------------
 const users = {
   "admin": {
-    hash: "ef92b778bafe771e89245b89ecbcfabc5c414d3aa22e46d6748b1370a25b1f78", // hash of 'admin123'
+    hash: "ef92b778bafe771e89245b89ecbcfabc5c414d3aa22e46d6748b1370a25b1f78", // admin123
     role: "admin"
   },
   "bob": {
-    hash: "a8b64babdffb15e79b062db50eebca4f8ffde44de23a95d833f1d11ecdfdf6e3", // hash of 'test123'
+    hash: "a8b64babdffb15e79b062db50eebca4f8ffde44de23a95d833f1d11ecdfdf6e3", // test123
     role: "user"
   }
 };
 
-// Helper: hash password using SHA-256
+// ----------------------------
+// HELPER: SHA-256 hash function
+// ----------------------------
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Login function
+// ----------------------------
+// LOGIN FUNCTION
+// ----------------------------
 async function login() {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
@@ -40,14 +45,18 @@ async function login() {
   }
 }
 
-// Logout
+// ----------------------------
+// LOGOUT FUNCTION
+// ----------------------------
 function logout() {
   document.getElementById("login").style.display = "block";
   document.getElementById("adminPanel").style.display = "none";
   document.getElementById("userPanel").style.display = "none";
 }
 
-// Admin: Create new user
+// ----------------------------
+// ADMIN: CREATE USER
+// ----------------------------
 async function createUser() {
   const username = document.getElementById("newUsername").value;
   const password = document.getElementById("newPassword").value;
@@ -59,7 +68,9 @@ async function createUser() {
   alert("User created!");
 }
 
-// Admin: Delete user
+// ----------------------------
+// ADMIN: DELETE USER
+// ----------------------------
 function deleteUser() {
   const username = document.getElementById("deleteUsername").value;
 
@@ -69,3 +80,12 @@ function deleteUser() {
   delete users[username];
   alert("User deleted!");
 }
+
+// ----------------------------
+// EVENT LISTENERS
+// ----------------------------
+document.getElementById("loginBtn").addEventListener("click", login);
+document.getElementById("logoutBtn1").addEventListener("click", logout);
+document.getElementById("logoutBtn2").addEventListener("click", logout);
+document.getElementById("createUserBtn").addEventListener("click", createUser);
+document.getElementById("deleteUserBtn").addEventListener("click", deleteUser);
