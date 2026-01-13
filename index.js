@@ -14,21 +14,26 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Helper function: convert username → email
-const usernameToEmail = (username) => `${username}@happycolorgame.local`;
+// Convert username → Firebase email
+const usernameToEmail = (username) => {
+  if(username.toLowerCase() === "admin") return "admin@happycolorgame.local";
+  return `${username}@happycolorgame.local`;
+};
 
 // Login function
 window.login = () => {
-  const username = document.getElementById("email").value; // keep input as "email" for simplicity
+  const username = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const email = usernameToEmail(username);
 
   signInWithEmailAndPassword(auth, email, password)
     .then(userCredential => {
-      if (username === "admin") {
+      if(username.toLowerCase() === "admin") {
+        // Show admin panel
         document.getElementById("login").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
       } else {
+        // Normal user
         document.getElementById("login").style.display = "none";
         document.getElementById("userPanel").style.display = "block";
         document.getElementById("userEmail").textContent = username;
@@ -48,7 +53,7 @@ window.logout = () => {
 
 // Admin: Create user
 window.createUser = () => {
-  const username = document.getElementById("newUserEmail").value; // rename input placeholder to "Username"
+  const username = document.getElementById("newUserEmail").value;
   const password = document.getElementById("newUserPassword").value;
   const email = usernameToEmail(username);
 
@@ -57,7 +62,7 @@ window.createUser = () => {
     .catch(err => alert(err.message));
 }
 
-// Admin: Delete user (needs Cloud Functions)
+// Admin: Delete user (requires Cloud Functions)
 window.deleteUser = () => {
   alert("Delete user requires Cloud Functions.");
 }
