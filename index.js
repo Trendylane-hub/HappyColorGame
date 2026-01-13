@@ -1,8 +1,7 @@
-// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
 
-// Your Firebase config
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCDNfAL0vzSorHkrOuOA7KomWnpZwgMsxc",
   authDomain: "happy-color-game.firebaseapp.com",
@@ -12,27 +11,27 @@ const firebaseConfig = {
   appId: "1:97392816870:web:cf10c9b34900f19cfb8127"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// Helper function: convert username → email
+const usernameToEmail = (username) => `${username}@happycolorgame.local`;
+
 // Login function
 window.login = () => {
-  const email = document.getElementById("email").value;
+  const username = document.getElementById("email").value; // keep input as "email" for simplicity
   const password = document.getElementById("password").value;
+  const email = usernameToEmail(username);
 
   signInWithEmailAndPassword(auth, email, password)
     .then(userCredential => {
-      const user = userCredential.user;
-      if (email === "chaudhryzakariya2014@gmail.com") {
-        // Admin
+      if (username === "admin") {
         document.getElementById("login").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
       } else {
-        // Normal user
         document.getElementById("login").style.display = "none";
         document.getElementById("userPanel").style.display = "block";
-        document.getElementById("userEmail").textContent = email;
+        document.getElementById("userEmail").textContent = username;
       }
     })
     .catch(err => alert(err.message));
@@ -49,16 +48,17 @@ window.logout = () => {
 
 // Admin: Create user
 window.createUser = () => {
-  const email = document.getElementById("newUserEmail").value;
+  const username = document.getElementById("newUserEmail").value; // rename input placeholder to "Username"
   const password = document.getElementById("newUserPassword").value;
+  const email = usernameToEmail(username);
 
   createUserWithEmailAndPassword(auth, email, password)
     .then(() => alert("User created!"))
     .catch(err => alert(err.message));
 }
 
-// Admin: Delete user
-// ⚠️ WARNING: Cannot delete users from frontend JS, requires Cloud Functions
+// Admin: Delete user (needs Cloud Functions)
 window.deleteUser = () => {
-  alert("Delete user requires Cloud Functions. Will set up next step.");
+  alert("Delete user requires Cloud Functions.");
 }
+
