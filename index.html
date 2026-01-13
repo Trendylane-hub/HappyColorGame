@@ -7,31 +7,38 @@
 </head>
 <body>
 
-<h1>🎨 Happy Color</h1>
+<h1>🎨 Happy Color Game</h1>
 
+<!-- LOGIN PANEL -->
 <div id="login">
-  <input type="email" id="email" placeholder="Email">
+  <input type="text" id="username" placeholder="Username">
   <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Login</button>
+  <button id="loginBtn">Login</button>
 </div>
 
+<!-- ADMIN PANEL -->
 <div id="adminPanel" style="display:none;">
   <h2>Admin Panel</h2>
-  <input type="email" id="newUserEmail" placeholder="New User Email">
-  <input type="password" id="newUserPassword" placeholder="Password">
-  <button onclick="createUser()">Create User</button>
-  <input type="email" id="deleteUserEmail" placeholder="Delete User Email">
-  <button onclick="deleteUser()">Delete User</button>
-  <p>Logout as Admin:</p>
-  <button onclick="logout()">Logout</button>
+  <div>
+    <input type="text" id="newUsername" placeholder="New Username">
+    <input type="password" id="newPassword" placeholder="Password">
+    <button id="createUserBtn">Create User</button>
+  </div>
+  <div>
+    <input type="text" id="deleteUsername" placeholder="Delete Username">
+    <button id="deleteUserBtn">Delete User</button>
+  </div>
+  <button id="logoutBtn1">Logout</button>
 </div>
 
+<!-- USER PANEL -->
 <div id="userPanel" style="display:none;">
   <h2>User Panel</h2>
-  <p>Welcome, <span id="userEmail"></span></p>
-  <button onclick="logout()">Logout</button>
+  <p>Welcome, <span id="userDisplay"></span></p>
+  <button id="logoutBtn2">Logout</button>
 </div>
 
-<script type="module" src="index.js"></script>
+<script src="index.js"></script>
 </body>
 </html>
+
