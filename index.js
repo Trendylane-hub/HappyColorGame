@@ -3,7 +3,7 @@
 // ----------------------------
 const users = {
   "admin": {
-    hash: "ef92b778bafe771e89245b89ecbcfabc5c414d3aa22e46d6748b1370a25b1f78", // admin123
+    hash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9", // admin123
     role: "admin"
   },
   "bob": {
@@ -89,3 +89,4 @@ document.getElementById("logoutBtn1").addEventListener("click", logout);
 document.getElementById("logoutBtn2").addEventListener("click", logout);
 document.getElementById("createUserBtn").addEventListener("click", createUser);
 document.getElementById("deleteUserBtn").addEventListener("click", deleteUser);
+
