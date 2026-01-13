@@ -1,55 +1,48 @@
-// ----------------------------
-// USERS DATABASE (hashed passwords)
-// ----------------------------
-const users = {
-  "admin": {
-    hash: "d8d3c3f2ee4f406cfce06b3695756390615b2668783b65737935d418a6c2d89d
-", // admin123
-    role: "admin"
-  },
-  "bob": {
-    hash: "a8b64babdffb15e79b062db50eebca4f8ffde44de23a95d833f1d11ecdfdf6e3", // test123
-    role: "user"
-  }
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, deleteUser as firebaseDeleteUser } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCDNfAL0vzSorHkrOuOA7KomWnpZwgMsxc",
+  authDomain: "happy-color-game.firebaseapp.com",
+  projectId: "happy-color-game",
+  storageBucket: "happy-color-game.appspot.com",
+  messagingSenderId: "97392816870",
+  appId: "1:97392816870:web:cf10c9b34900f19cfb8127"
 };
 
-// ----------------------------
-// HELPER: SHA-256 hash function
-// ----------------------------
-async function hashPassword(password) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 // ----------------------------
-// LOGIN FUNCTION
+// LOGIN
 // ----------------------------
-async function login() {
-  const username = document.getElementById("username").value;
+window.login = async () => {
+  const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  if(!users[username]) return alert("Username not found");
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-  const passwordHash = await hashPassword(password);
-  if(passwordHash !== users[username].hash) return alert("Incorrect password");
-
-  if(users[username].role === "admin") {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("adminPanel").style.display = "block";
-  } else {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("userPanel").style.display = "block";
-    document.getElementById("userDisplay").textContent = username;
+    if(email === "chaudhryzakariya2014@gmail.com") {
+      // admin panel
+      document.getElementById("login").style.display = "none";
+      document.getElementById("adminPanel").style.display = "block";
+    } else {
+      // normal user panel
+      document.getElementById("login").style.display = "none";
+      document.getElementById("userPanel").style.display = "block";
+      document.getElementById("userEmail").textContent = email;
+    }
+  } catch(error) {
+    alert(error.message);
   }
 }
 
 // ----------------------------
-// LOGOUT FUNCTION
+// LOGOUT
 // ----------------------------
-function logout() {
+window.logout = () => {
   document.getElementById("login").style.display = "block";
   document.getElementById("adminPanel").style.display = "none";
   document.getElementById("userPanel").style.display = "none";
@@ -58,37 +51,35 @@ function logout() {
 // ----------------------------
 // ADMIN: CREATE USER
 // ----------------------------
-async function createUser() {
-  const username = document.getElementById("newUsername").value;
+window.createUser = async () => {
+  const email = document.getElementById("newEmail").value;
   const password = document.getElementById("newPassword").value;
 
-  if(users[username]) return alert("User already exists");
-
-  const passwordHash = await hashPassword(password);
-  users[username] = { hash: passwordHash, role: "user" };
-  alert("User created!");
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    alert("User created successfully!");
+  } catch(error) {
+    alert(error.message);
+  }
 }
 
 // ----------------------------
-// ADMIN: DELETE USER
+// ADMIN: DELETE USER (must be logged in as admin)
 // ----------------------------
-function deleteUser() {
-  const username = document.getElementById("deleteUsername").value;
+window.deleteUser = async () => {
+  const email = document.getElementById("deleteEmail").value;
 
-  if(!users[username]) return alert("User not found");
-  if(username === "admin") return alert("Cannot delete admin!");
+  try {
+    const user = auth.currentUser;
+    if(!user || user.email !== "chaudhryzakariya2014@gmail.com") {
+      alert("You must be logged in as admin to delete users");
+      return;
+    }
 
-  delete users[username];
-  alert("User deleted!");
+    // Firebase Auth requires admin SDK or backend to delete another user
+    alert("Deleting users requires a backend. For now, only sign-out users is possible.");
+  } catch(error) {
+    alert(error.message);
+  }
 }
-
-// ----------------------------
-// EVENT LISTENERS
-// ----------------------------
-document.getElementById("loginBtn").addEventListener("click", login);
-document.getElementById("logoutBtn1").addEventListener("click", logout);
-document.getElementById("logoutBtn2").addEventListener("click", logout);
-document.getElementById("createUserBtn").addEventListener("click", createUser);
-document.getElementById("deleteUserBtn").addEventListener("click", deleteUser);
-
 
